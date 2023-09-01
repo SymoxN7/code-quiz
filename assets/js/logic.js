@@ -8,11 +8,41 @@ let choicesElement = document.getElementById("choices");
 let submitButton = document.getElementById("submit");
 let startButton = document.getElementById("start");
 let initialElement = document.getElementById("initials");
-let feedbackButton = document.getElementById("feedback");
+let feedbackElement = document.getElementById("feedback");
+
+function questionClick() {
+    if (this.value !== questions[currentQuestionIndex].answer) {
+        time -= 15;
+
+        if (time < 0) {
+            time = 0;
+        }
+
+        timerElement.textContent = time;
+
+        feedbackElement.textContent = "Wrong"
+    }
+    else {
+        feedbackElement.textContent = "Correct";
+    }
+
+    feedbackElement.setAttribute("class", "feedback");
+
+    setTimeout(function () {
+        feedbackElement.setAttribute("class", "feedback hide")
+    }, 1000);
+
+    if (currentQuestionIndex === questions.length) {
+        quizEnd()
+    }
+    else {
+        getQuestions();
+    }
+}
 
 function quizEnd() {
     clearInterval(timerID)
-    
+
     let endScreenElement = document.getElementById("end-screen")
     questionsElement.setAttribute("class", "hide")
     endScreenElement.removeAttribute("class")
@@ -38,17 +68,33 @@ function startQuiz() {
 
     timerID = setInterval(clockTick, 1000);
 
+    timerElement.textContent = time;
+
     getQuestions()
 }
 
 function getQuestions() {
-    questionsElement.removeAttribute("class")
-    let questionTitle = document.getElementById("question-title")
-    questionTitle.textContent = questions.title
-}
+    let currentQuestion = questions[currentQuestionIndex].answer;
 
-function questionClick() {
+    let titleElement = document.getElementById("question-title");
 
+    titleElement.textContent = currentQuestion.title;
+
+    choicesElement.innerHTML = "";
+
+    currentQuestion.choices.forEach(function (choice, index) {
+        let choiceButton = document.createElement("button");
+
+        choiceButton.setAttribute("class", "choice");
+        choiceButton.setAttribute("value", choice);
+
+        choiceButton.textContent = `${index + 1}. ${choice}`
+
+        choiceButton.addEventListener("click", questionClick);
+
+        choicesElement.append(choiceButton);
+    }
+    )
 }
 
 function saveHighScore() {
